@@ -1,5 +1,6 @@
 const video = document.getElementById('video');
 const captureBtn = document.getElementById('capture-btn');
+const toggleCameraBtn = document.getElementById('toggle-camera-btn');
 const modal = document.getElementById('modal');
 const modalImg = document.getElementById('modal-img');
 const coordsP = document.getElementById('coords');
@@ -7,9 +8,10 @@ const mapsLink = document.getElementById('maps-link');
 
 let stream = null;
 let currentFacingMode = "environment";
+let cameraOn = false;
 
 function initApp() {
-    openCamera();
+    // Camera starts off
 }
 
 // Abrir cámara
@@ -27,6 +29,10 @@ async function openCamera() {
 
         video.srcObject = stream;
         await video.play();
+        
+        cameraOn = true;
+        toggleCameraBtn.textContent = "Apagar Cámara";
+        captureBtn.disabled = false;
         
         console.log("Cámara activada");
 
@@ -97,25 +103,32 @@ function getCurrentPosition() {
 // Cerrar modal
 function closeModal() {
     modal.style.display = 'none';
-    // Reabrir cámara
-    openCamera();
+    // Camera stays as is
 }
 
-// Cambiar cámara
-function switchCamera() {
-    currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
-    openCamera();
+// Toggle cámara
+function toggleCamera() {
+    if (cameraOn) {
+        stopCamera();
+    } else {
+        openCamera();
+    }
 }
 
 // Detener cámara
 function stopCamera() {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
+        stream = null;
     }
+    cameraOn = false;
+    toggleCameraBtn.textContent = "Encender Cámara";
+    captureBtn.disabled = true;
 }
 
 // Event Listeners
 captureBtn.addEventListener('click', takePhoto);
+toggleCameraBtn.addEventListener('click', toggleCamera);
 
 // Cambiar cámara con doble tap
 video.addEventListener('dblclick', switchCamera);
